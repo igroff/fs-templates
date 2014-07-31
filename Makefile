@@ -17,7 +17,7 @@ build_output/: node_modules/
 	mkdir -p build_output
 
 run-server: build_output/
-	cd build_output && ../node_modules/.bin/http-server
+	cd build_output && exec ../node_modules/.bin/http-server
 
 clean:
 	rm -rf ./node_modules/
