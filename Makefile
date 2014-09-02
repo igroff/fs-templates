@@ -1,5 +1,5 @@
 SHELL=/bin/bash
-.PHONY: watch lint clean install
+.PHONY: watch lint clean install run-server
 
 watch:
 	DEBUG=true ./node_modules/.bin/supervisor --watch 'src/,./' --ignore "./test"  -e "litcoffee,coffee,js" --exec make run-server
