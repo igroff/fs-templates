@@ -17,7 +17,7 @@ build_output/: node_modules/
 	mkdir -p build_output
 
 run-server: build_output/
-	cd build_output && exec ../node_modules/.bin/http-server
+	exec bash -c "export APP_NAME=${APP_NAME-$(basename `pwd`)}; test -r ~/.${APP_NAME}.env && . ~/.${APP_NAME}.env ; exec node server.js"
 
 clean:
 	rm -rf ./node_modules/
