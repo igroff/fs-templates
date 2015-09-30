@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Contents of {{=it.basename}}</title>
+</head>
+<body>
+  <ul>{{~it.contents :value:index}}
+  <li><a href="{{=value.name}}">{{=value.name}}</a></li>
+  {{~}}</ul>
+</body>
+</html>
+
+
