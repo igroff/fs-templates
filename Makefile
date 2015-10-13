@@ -14,8 +14,12 @@ INCLUDE_EXISTS:=$(shell [ -f $(MY_INCLUDE) ] && echo YES)
 # STATIC_DEPLOY_AWS_ACCESS_KEY_ID
 # STATIC_DEPLOY_AWS_SECRET_ACCESS_KEY
 # STATIC_DEPLOY_S3_BUCKET_NAME
+# STATIC_DEPLOY_S3_REGION_NAME
 
-.PHONY: clean deploy serve report
+export AWS_ACCESS_KEY_ID=${STATIC_DEPLOY_AWS_ACCESS_KEY_ID}
+export AWS_SECRET_ACCESS_KEY=${STATIC_DEPLOY_AWS_SECRET_ACCESS_KEY}
+
+.PHONY: clean deploy serve report invalidations show
 
 serve: report
 	python -m SimpleHTTPServer ${PORT}
@@ -24,8 +28,15 @@ clean: report
 	@echo "cleaning currently does nothing"
 	
 deploy: report
-	aws s3 cp --exclude 'Makefile' --exclude '.gitignore' --execlude '*.swp' --recursive . s3://${STATIC_DEPLOY_S3_BUCKET_NAME}
+	aws s3 --region ${STATIC_DEPLOY_S3_REGION_NAME} cp --exclude '.git/*' --exclude 'Makefile' --exclude '.gitignore' --exclude '*.swp' --recursive . s3://${STATIC_DEPLOY_S3_BUCKET_NAME}
+	aws cloudfront create-invalidation --distribution-id ${CLOUDFRONT_DISTRIBUTION_ID} --invalidation-batch '{"CallerReference":"$(shell date +"%s")","Paths":{"Quantity":1,"Items":["${INVALIDATION_ROOT}"]}}'
 	
+invalidations:
+	aws cloudfront list-invalidations --distribution-id ${CLOUDFRONT_DISTRIBUTION_ID}
+
+show:
+	aws --region ${STATIC_DEPLOY_S3_REGION_NAME} s3 ls s3://${STATIC_DEPLOY_S3_BUCKET_NAME}/
+
 report:
 	@echo "environment $(ENV_NAME)"
 ifdef INCLUDE_EXISTS
